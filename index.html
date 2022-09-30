@@ -1,0 +1,28 @@
+<html>
+  <body style="background-color:transparent">
+    <div align="center">
+      <button id="btn">Tirer</button>
+      <input type="checkbox" class="stx" checked>seulement STX</input>
+      <p><img id="card" src="" width="300px"/></p>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      $("#btn").click(() => {
+        const endpoint = "https://api.scryfall.com/cards/random"
+        const stx_query = "?q=(s:stx%20or%20s:sta%20or%20s:tstx%20or%20(s:c21%20and%20not:reprint))"
+        const url = endpoint.concat($("input.stx").is(":checked")?stx_query:"");
+        $.get(url, (data) => {
+          const card_url = "https://api.scryfall.com/cards/"+data.set+"/"+data.collector_number;
+          $.get(card_url+"/fr",
+            (data) => {
+              $('#card').attr('src',card_url+"/fr?format=image");
+            })
+            .fail(() => {
+              $('#card').attr('src',card_url+"?format=image");
+            })
+        })
+      })
+    </script>
+    <script>$(function(){$('#btn').click();});</script>
+  </body>
+</html>
