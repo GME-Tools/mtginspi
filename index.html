@@ -1,11 +1,37 @@
 <html>
   <body style="background-color:transparent">
     <div align="center">
-      <button id="btn">Tirer</button>
-      <input type="checkbox" class="stx" checked>seulement STX</input>
+      <button id="btn">Draw</button>
+      <select name="lang" id="lang-select">
+        <option value="">Default</option>
+        <option value="/de">Deutshe</option>
+        <option value="/en">English</option>
+        <option value="/es">Español</option>
+        <option value="/fr">Français</option>
+        <option value="/it">Italiano</option>
+      </select>
+      <input type="checkbox" class="stx" checked id="stxbox">STX only</input>
       <p><img id="card" src="" width="300px"/></p>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      const getUrlParameter = function getUrlParameter(sParam) {
+        let sPageURL = window.location.search.substring(1)
+        let sURLVariables = sPageURL.split('&')
+        for (let i=0; i<sURLVariables.length; i++) {
+          let sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+          }
+        }
+        return false;
+      }
+      
+      const lang = getUrlParameter("lang");
+      if (lang) {
+        $('select option[value="/'+lang+'"]').attr("selected",true);
+      }
+    </script>
     <script>
       $("#btn").click(() => {
         const endpoint = "https://api.scryfall.com/cards/random"
@@ -13,9 +39,9 @@
         const url = endpoint.concat($("input.stx").is(":checked")?stx_query:"");
         $.get(url, (data) => {
           const card_url = "https://api.scryfall.com/cards/"+data.set+"/"+data.collector_number;
-          $.get(card_url+"/fr",
+          $.get(card_url+$('#lang-select').val(),
             (data) => {
-              $('#card').attr('src',card_url+"/fr?format=image");
+              $('#card').attr('src',card_url+$('#lang-select').val()+"?format=image");
             })
             .fail(() => {
               $('#card').attr('src',card_url+"?format=image");
