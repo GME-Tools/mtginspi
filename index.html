@@ -10,7 +10,8 @@
         <option value="/fr">Français</option>
         <option value="/it">Italiano</option>
       </select>
-      <input type="checkbox" class="stx" checked id="stxbox">STX only</input>
+      <input type="checkbox" class="stx" checked id="stxbox" val="stx"/>
+      <label for="stxbox" id="stxlbl">STX only</label>
       <p><img id="card" src="" width="300px"/></p>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -26,17 +27,26 @@
         }
         return false;
       }
-      
+
       const lang = getUrlParameter("lang");
       if (lang) {
         $('select option[value="/'+lang+'"]').attr("selected",true);
       }
+
+      const setid = getUrlParameter("set");
+      if (setid) {
+        $('#stxbox').val(setid);
+        $('#stxlbl').text(setid.toUpperCase() + " only").show();
+      }
     </script>
     <script>
       $("#btn").click(() => {
+        let set_query;
+        if ($('#stxbox').val() === "stx") set_query = "?q=(s:stx%20or%20s:sta%20or%20s:tstx%20or%20(s:c21%20and%20not:reprint))"
+        else set_query = "?q=(s:" + $('#stxbox').val() + ")"
+
         const endpoint = "https://api.scryfall.com/cards/random"
-        const stx_query = "?q=(s:stx%20or%20s:sta%20or%20s:tstx%20or%20(s:c21%20and%20not:reprint))"
-        const url = endpoint.concat($("input.stx").is(":checked")?stx_query:"");
+        const url = endpoint.concat($("input.stx").is(":checked")?set_query:"");
         $.get(url, (data) => {
           const card_url = "https://api.scryfall.com/cards/"+data.set+"/"+data.collector_number;
           $.get(card_url+$('#lang-select').val(),
